@@ -24,15 +24,5 @@ services:
     volumes:
       - samba_data:/share
 
-  lambda-local:
-    build:
-      context: ./docker/lambda
-    volumes:
-      - ./src:/app/src
-      - ./tests:/app/tests
-    depends_on:
-      - localstack
-      - samba
-
 volumes:
   samba_data:
