@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=lambda,s3,ssm
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  samba:
+    build:
+      context: ./docker/samba
+    ports:
+      - "445:445"
+    environment:
+      - USER=testuser
+      - PASS=testpass
+    volumes:
+      - samba_data:/share
+
+  lambda-local:
+    build:
+      context: ./docker/lambda
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    depends_on:
+      - localstack
+      - samba
+
+volumes:
+  samba_data:
