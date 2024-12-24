@@ -11,21 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      localstack:
-        image: localstack/localstack:latest
-        env:
-          SERVICES: lambda,s3,ssm
-          DEBUG: 1
-          DOCKER_HOST: unix:///var/run/docker.sock
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
-        ports:
-          - 4566:4566
+        localstack:
+            image: localstack/localstack:latest
+            env:
+                SERVICES: lambda,s3,ssm
+                DEBUG: 1
+                DOCKER_HOST: unix:///var/run/docker.sock
+            volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+            ports:
+                - 4566:4566
 
-      samba:
-        image: dperson/samba:latest
-        ports:
-          - 445:445
+        samba:
+            image: dperson/samba:latest
+            env:
+                USER: "testuser;testpass"
+                SHARE: "share;/share;yes;no;no;all;none"
+                WORKGROUP: "WORKGROUP"
+                SMB: "2.1"
+            ports:
+                - 445:445
 
     steps:
     - uses: actions/checkout@v4
