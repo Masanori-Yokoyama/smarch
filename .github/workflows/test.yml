@@ -1,0 +1,62 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+        localstack:
+            image: localstack/localstack:latest
+            env:
+                SERVICES: lambda,s3,ssm
+                DEBUG: 1
+                DOCKER_HOST: unix:///var/run/docker.sock
+            volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+            ports:
+                - 4566:4566
+
+        samba:
+            image: dperson/samba:latest
+            env:
+                USER: "testuser;testpass"
+                SHARE: "share;/share;yes;yes;yes;all;none"
+                WORKGROUP: "WORKGROUP"
+                PERMISSIONS: "share;777"
+                SMB: "2.1"
+            ports:
+                - 445:445
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12.8'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: '1.8.5'
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Run tests
+      run: poetry run pytest -v
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        SSM_ENDPOINT_URL: http://localhost:4566
+        S3_ENDPOINT_URL: http://localhost:4566
+        S3_BUCKET_NAME: test-bucket
+        SMB_HOST: localhost
+        AWS_ACCESS_KEY_ID: test
+        AWS_SECRET_ACCESS_KEY: test
+        AWS_DEFAULT_REGION: ap-northeast-1
