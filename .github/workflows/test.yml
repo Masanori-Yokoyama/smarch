@@ -16,6 +16,9 @@ jobs:
         env:
           SERVICES: lambda,s3,ssm
           DEBUG: 1
+          DOCKER_HOST: unix:///var/run/docker.sock
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
         ports:
           - 4566:4566
 
