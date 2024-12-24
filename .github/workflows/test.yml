@@ -1,0 +1,57 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack:latest
+        env:
+          SERVICES: lambda,s3,ssm
+          DEBUG: 1
+        ports:
+          - 4566:4566
+
+      samba:
+        image: alpine:latest
+        env:
+          USER: testuser
+          PASS: testpass
+        ports:
+          - 445:445
+        options: >-
+          --health-cmd "netstat -an | grep 445"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version-file: '.tool-versions'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.8.5
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Run tests
+      run: poetry run pytest -v
+      env:
+        SSM_ENDPOINT_URL: http://localhost:4566
+        S3_ENDPOINT_URL: http://localhost:4566
+        S3_BUCKET_NAME: test-bucket
+        SMB_HOST: localhost
