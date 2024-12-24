@@ -33,12 +33,12 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version-file: '.tool-versions'
+        python-version: '3.12.8'
 
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.8.5
+        version: '1.8.5'
 
     - name: Install dependencies
       run: poetry install
