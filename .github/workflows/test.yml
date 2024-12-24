@@ -20,17 +20,9 @@ jobs:
           - 4566:4566
 
       samba:
-        image: alpine:latest
-        env:
-          USER: testuser
-          PASS: testpass
+        image: dperson/samba:latest
         ports:
           - 445:445
-        options: >-
-          --health-cmd "netstat -an | grep 445"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - uses: actions/checkout@v4
@@ -51,6 +43,7 @@ jobs:
     - name: Run tests
       run: poetry run pytest -v
       env:
+        PYTHONPATH: ${{ github.workspace }}
         SSM_ENDPOINT_URL: http://localhost:4566
         S3_ENDPOINT_URL: http://localhost:4566
         S3_BUCKET_NAME: test-bucket
