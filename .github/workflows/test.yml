@@ -26,8 +26,9 @@ jobs:
             image: dperson/samba:latest
             env:
                 USER: "testuser;testpass"
-                SHARE: "share;/share;yes;no;no;all;none"
+                SHARE: "share;/share;yes;yes;yes;all;none"
                 WORKGROUP: "WORKGROUP"
+                PERMISSIONS: "share;777"
                 SMB: "2.1"
             ports:
                 - 445:445
